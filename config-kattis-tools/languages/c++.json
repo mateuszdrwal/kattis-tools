@@ -1,0 +1,7 @@
+{
+    "name": "C++",
+    "extensions": [".cpp", ".c++", ".cc", ".cxx", ".h"],
+    "short_names": ["cpp", "c++", "cxx"],
+    "before_run": "cd ${problemDir} && g++ -static ${fileName} -o ${fileNameNoExtension}.exe",
+    "run_command": "${problemDir}\\${fileNameNoExtension}.exe"
+}

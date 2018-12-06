@@ -1,0 +1,7 @@
+{
+    "name": "Python 2",
+    "extensions": [".py"],
+    "short_names": ["py"],
+    "before_run": "",
+    "run_command": "pypy \"${filePath}\""
+}
