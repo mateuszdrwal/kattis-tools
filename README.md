@@ -87,7 +87,7 @@ Configuration files exist in the `config-kattis-tools` folder.
 
 config.json:
 
-```json
+```json5
 {
     "last_language": "py", // The short name of the last used language (and the default language to use). Can be modified with the -l command line argument
     "last_problem": "hello" // The id of the last run problem (and the default problem to run). Can be modified with the -p command line argument
@@ -96,7 +96,7 @@ config.json:
 
 By default, kattis-tools comes configured with only 2 languages, Python 2 and C++. If you use a different language you will have to create a new json file in the `config-kattis-tools/languages` folder. Feel free to submit a pull request with it so it can be added to kattis-tools. Here is an example file for C++ on windows:
 
-```json
+```json5
 {
     "name": "C++", // The Kattis name of the language. Must be one of the names in the codeblock below this one, otherwise Kattis will return "Invalid Language" when submitting.
     "extensions": [".cpp", ".c++", ".cc", ".cxx", ".h"], // File extensions for this language
