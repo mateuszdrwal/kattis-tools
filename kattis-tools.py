@@ -133,7 +133,7 @@ args = parser.parse_args()
 language = [key for key, values in config["languages"].items() if args.language in values.get("short_names", [])][0]
 
 if args.problem_id not in os.listdir(".") and args.mode != "start":
-    print("The problem id you entered is invalid. Make sure there is a folder with the same name as the problem id in the same folder as this script.")
+    print("The current problem id ({id}) is invalid. Make sure there is a folder with the same name as the problem id in the same folder as this script. If you are not working on {id}, run kattis-tools with the -p flag and specify your problems id.".format(id=args.problem_id))
     exit(1)
 
 if args.mode != "start": problem_file = find_problem_file()
