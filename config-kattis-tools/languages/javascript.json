@@ -1,0 +1,7 @@
+{
+    "name": "JavaScript",
+    "extensions": [".js"],
+    "short_names": ["js"],
+    "before_run": "",
+    "run_command": "node ${problemDir}\\${fileName}"
+}
