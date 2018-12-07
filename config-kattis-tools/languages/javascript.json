@@ -1,5 +1,5 @@
 {
-    "name": "JavaScript",
+    "name": "JavaScript (Node.js)",
     "extensions": [".js"],
     "short_names": ["js"],
     "before_run": "",
