@@ -94,7 +94,7 @@ config.json:
 }
 ```
 
-By default, kattis-tools comes configured with only 2 languages, Python 2 and C++. If you use a different language you will have to create a new json file in the `config-kattis-tools/languages` folder. Feel free to submit a pull request with it so it can be added to kattis-tools. Here is an example file for C++ on windows:
+By default, kattis-tools comes configured with 4 languages: Python 2 (pypy), C++, JavaScript and Rust. If you use a different language you will have to create a new json file in the `config-kattis-tools/languages` folder. Feel free to submit a pull request with it so it can be added to kattis-tools. Here is an example file for C++ on windows:
 
 ```json5
 {
