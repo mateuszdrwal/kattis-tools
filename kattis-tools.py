@@ -60,6 +60,7 @@ def parse_variables(string):
     """parses command variables"""
     replace = {
         "${filePath}": os.path.join(os.getcwd(), args.problem_id, problem_file),
+        "${filePathNoExtension}": os.path.join(os.getcwd(), args.problem_id, problem_file.rsplit(".", 1)[0]),
         "${fileName}": problem_file,
         "${fileNameNoExtension}": problem_file.rsplit(".", 1)[0],
         "${problemDir}": os.path.join(os.getcwd(), args.problem_id),
