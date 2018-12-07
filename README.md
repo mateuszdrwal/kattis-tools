@@ -102,7 +102,7 @@ By default, kattis-tools comes configured with only 2 languages, Python 2 and C+
     "extensions": [".cpp", ".c++", ".cc", ".cxx", ".h"], // File extensions for this language
     "short_names": ["cpp", "c++", "cxx"], // Short names for this language, they are what identifies the language when running -l.
     "before_run": "cd ${problemDir} && g++ -static ${fileName} -o ${fileNameNoExtension}.exe", // A command to run before running your program. Usually used for the compile command, can be left empty if your language does not require compilation. Only runs once before all tests when judging.
-    "run_command": "${problemDir}\\${fileNameNoExtension}.exe" // The command that runs your program.
+    "run_command": "${filePathNoExtension}.exe" // The command that runs your program.
 }
 ```
 
