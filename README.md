@@ -133,6 +133,7 @@ You may have noticed variables in the language config. Here is a full list of th
 
 ```
 ${filePath}
+${filePathNoExtension}
 ${fileName}
 ${fileNameNoExtension}
 ${problemDir}
