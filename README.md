@@ -115,7 +115,9 @@ C++
 Go
 Haskell
 Java
-JavaScript
+JavaScript (Node.js)
+JavaScript (SpiderMonkey)
+Kotlin
 Objective-C
 Pascal
 PHP
@@ -123,6 +125,8 @@ Prolog
 Python 2
 Python 3
 Ruby
+Rust
+Scala
 ```
 
 You may have noticed variables in the language config. Here is a full list of them:
