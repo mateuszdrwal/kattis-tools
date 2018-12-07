@@ -1,0 +1,7 @@
+{
+    "name": "Rust",
+    "extensions": [".rs"],
+    "short_names": ["rust", "rs"],
+    "before_run": "cd ${problemDir} && rustc ${fileName} -o ${fileNameNoExtension}.exe",
+    "run_command": "${filePathNoExtension}.exe"
+}
