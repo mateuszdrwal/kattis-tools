@@ -81,19 +81,24 @@ def before_run_problem():
         code = p.wait()
         if code != 0:
             print("before_run exited with error code %s" % (int(code)))
+            exit()
 
-def run_problem(sample):
+def run_problem(sample, directStdio=False):
     """runs the problem once and return time with stdout"""
     start = time.time()
-    p = Popen(parse_variables(config["languages"][language]["run_command"]), stdin=open("%s/%s" % (args.problem_id, sample)), stdout=PIPE, stderr=PIPE, shell=True)
+    if directStdio:
+        p = Popen(parse_variables(config["languages"][language]["run_command"]), stdin=open("%s/%s" % (args.problem_id, sample)), stdout=sys.stdout, stderr=sys.stderr, shell=True)
+    else:
+        p = Popen(parse_variables(config["languages"][language]["run_command"]), stdin=open("%s/%s" % (args.problem_id, sample)), stdout=PIPE, stderr=PIPE, shell=True)
     code = p.wait()
     end = time.time()
 
     stdout, stderr = p.communicate()
-    out = stdout.decode().replace("\r","") # get stdout
-    out = strip_whitespace(out)
-
-    return end-start, out, code, stderr
+    if not directStdio:
+        out = stdout.decode().replace("\r","") # get stdout
+        out = strip_whitespace(out)
+        return end-start, out, code, stderr
+    return end-start, None, code, None
 
 load_config()
 
@@ -153,11 +158,7 @@ if args.mode == "run":
     
     before_run_problem()
     print("running...")
-    out = run_problem("%s.in" % args.arg2)
-    if out[2] != 0:
-        print(out[3])
-        exit(1)
-    print(out[1])
+    out = run_problem("%s.in" % args.arg2, True)
     print("took %.3fs" % out[0])
 
 if args.mode == "judge":
@@ -184,7 +185,8 @@ if args.mode == "judge":
         ans = strip_whitespace(ans)
 
         if out[2] != 0:
-            print("Runtime Error")
+            print("Runtime Error, exit code %s" % out[2])
+            print(out[1])
             print(out[3])
         elif out[1] == ans:
             correct += 1
