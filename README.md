@@ -21,65 +21,56 @@ kattis-tools is a python script. Run it with `python kattis-tools.py`
 
 To start working on a new project, run `python kattis-tools.py start <URL>` with the URL of the problem. As an example, I will be solving [this problem](https://open.kattis.com/problems/simpleaddition).
 
-```
-$ python kattis-tools.py start https://open.kattis.com/problems/simpleaddition
-```
+    $ python kattis-tools.py start https://open.kattis.com/problems/simpleaddition
+    A problem enviroment for problem simpleaddition has been created.
 
 This creates the following problem directory and downloads all samples into it:
 
-```
-simpleaddition/
-├── 1.ans
-├── 1.in
-├── 2.ans
-├── 2.in
-└── problem.json
-```
+    simpleaddition/
+    ├── 1.ans
+    ├── 1.in
+    ├── 2.ans
+    ├── 2.in
+    └── problem.json
 
 Your solution code file should be located in that directory. Its name does not matter. When debugging your code, you can run `python kattis-tools.py run <sample>` to run your code with a specific sample input. (Since this is the first time we are running kattis-tools, we need to specify our language with `-l`. kattis-tools will remember this for the future)
 
-```
-$ python kattis-tools.py run 1 -l py
-running...
-1379
-took 0.053s
-```
+    $ python kattis-tools.py run 1 -l py
+    running...
+    1379
+    took 0.053s
 
 If you want to test your solution with all test cases, run `python kattis-tools.py judge`:
 
-```
-$ python kattis-tools.py judge
-Found 2 tests
+    $ python kattis-tools.py judge
+    Found 2 tests
 
-testing with "1.in"...
-Accepted
-took 0.050s
+    testing with "1.in"...
+    Accepted
+    took 0.050s
 
-testing with "2.in"...
-Wrong Answer
-got
-12345
-instead of
-10000000000000
+    testing with "2.in"...
+    Wrong Answer
+    got
+    12345
+    instead of
+    10000000000000
 
-took 0.049s
+    took 0.049s
 
-1/2 passed
-worst time: 0.050s
-```
+    1/2 passed
+    worst time: 0.050s
 
 If you want to submit your solution you should run `python kattis-tools.py submit`. Once your solution has been submitted kattis-tools will open the submission in your web browser.
 
-```
-$ python kattis-tools.py submit
-Before you can submit problems you need to register the token specific to this Kattis subdomain with kattis-tools. Your browser will open to the correct page.
-Press Enter to continue...
-From the webpage, Please copy paste the two lines with "username" and "token" here and press enter a few times:
-username: *************
-token: ****************************************************************
+    $ python kattis-tools.py submit
+    Before you can submit problems you need to register the token specific to this Kattis subdomain with kattis-tools. Your browser will open to the correct page.
+    Press Enter to continue...
+    From the webpage, Please copy paste the two lines with "username" and "token" here and press enter a few times:
+    username: *************
+    token: ****************************************************************
 
-Submission received. Submission ID: 3544950.
-```
+    Submission received. Submission ID: 3544950.
 
 ## Configuration
 
@@ -108,34 +99,30 @@ By default, kattis-tools comes configured with 4 languages: Python 2 (pypy), C++
 
 valid Kattis language names:
 
-```
-C
-C#
-C++
-Go
-Haskell
-Java
-JavaScript (Node.js)
-JavaScript (SpiderMonkey)
-Kotlin
-Objective-C
-Pascal
-PHP
-Prolog
-Python 2
-Python 3
-Ruby
-Rust
-Scala
-```
+    C
+    C#
+    C++
+    Go
+    Haskell
+    Java
+    JavaScript (Node.js)
+    JavaScript (SpiderMonkey)
+    Kotlin
+    Objective-C
+    Pascal
+    PHP
+    Prolog
+    Python 2
+    Python 3
+    Ruby
+    Rust
+    Scala
 
 You may have noticed variables in the language config. Here is a full list of them:
 
-```
-${filePath}
-${filePathNoExtension}
-${fileName}
-${fileNameNoExtension}
-${problemDir}
-${workingDir}
-```
+    ${filePath}
+    ${filePathNoExtension}
+    ${fileName}
+    ${fileNameNoExtension}
+    ${problemDir}
+    ${workingDir}
