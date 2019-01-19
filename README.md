@@ -72,6 +72,14 @@ If you want to submit your solution you should run `python kattis-tools.py submi
 
     Submission received. Submission ID: 3544950.
 
+## Extra Features
+
+### Custom output validators
+
+If the solution to a problem cannot be represented in a simple .ans file (for example if there are multiple solutions), a custom output validator can be provided. To use this feature, pass the path to the executeable output validator relative to the problem directory as the second argument when running `python kattis-tools judge`. For example, if the validator was named `validator.exe` and was located in the problem directory (the folder named `simpleaddition` in the example usage case above) the command would be `python kattis-tools judge validator.exe`.
+
+kattis-tools will pass the path to the sample input file as a command line argument when running the validator and feed the solution programs solution into stdin. The validator needs to return an exit code of 42 if the solution programs solution is valid, or exit code 43 to signal a Wrong Answer. kattis-tools will print the validators stdout if a solution recieves Wrong Answer, so the validator is able to send an explanation of what was wrong to stdout.
+
 ## Configuration
 
 Configuration files exist in the `config-kattis-tools` folder.

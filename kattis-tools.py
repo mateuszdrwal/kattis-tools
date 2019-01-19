@@ -13,7 +13,7 @@ from subprocess import Popen, PIPE
 if sys.version_info[0] < 3:
     FileNotFoundError = IOError
     json.decoder.JSONDecodeError = ValueError
-    input = raw_input
+    input = raw_input # pylint: disable=E0602
 
 KATTIS_MODES = ["run", "judge", "submit", "start"]
 CONFIG_FOLDER = "config-kattis-tools"
@@ -117,7 +117,7 @@ parser.add_argument(
     metavar="arg2",
     type=str,
     nargs="?",
-    help='When using "kattis-tools run", this is the name of the input file to feed to stdin. It should be in the problem folder and have the extenstion ".in". When using "kattis-tools start" this is the url to the problem on the kattis website.',
+    help='When using "kattis-tools run", this is the name of the input file to feed to stdin. It should be in the problem folder and have the extenstion ".in". When using "kattis-tools start" this is the url to the problem on the kattis website. When using "kattis-tools judge" this is the path of the optional (executeable) output validator relative to the problem directory.',
 )
 parser.add_argument(
     "-l",
@@ -162,10 +162,15 @@ if args.mode == "run":
     print("took %.3fs" % out[0])
 
 if args.mode == "judge":
+
+    validator = False
+    if args.arg2:
+        validator = True
+    
     files = os.listdir("%s" % args.problem_id)
     samples = []
     for file in files:
-        if file.endswith(".in") and "%s.ans" % file.split(".")[0] in files:
+        if file.endswith(".in") and ("%s.ans" % file.split(".")[0] in files or validator):
             samples.append(file)
     
     if samples == []:
@@ -181,19 +186,39 @@ if args.mode == "judge":
     for sample in samples:
         print('\ntesting with "%s"...' % sample)
         out = run_problem(sample)
-        ans = open("%s/%s"%(args.problem_id, sample.replace(".in", ".ans"))).read()
-        ans = strip_whitespace(ans)
 
         if out[2] != 0:
-            print("Runtime Error, exit code %s" % out[2])
-            print(out[1])
-            print(out[3])
-        elif out[1] == ans:
-            correct += 1
-            print("Accepted")
+                print("Runtime Error, exit code %s" % out[2])
+                print(out[1])
+                print(out[3])
         else:
-            print("Wrong Answer")
-            print("got \n%s\ninstead of \n%s\n"%(out[1],ans))
+            if not validator:
+                ans = open("%s/%s"%(args.problem_id, sample.replace(".in", ".ans"))).read()
+                ans = strip_whitespace(ans)
+                if out[1] == ans:
+                    correct += 1
+                    print("Accepted")
+                else:
+                    print("Wrong Answer")
+                    print("got \n%s\ninstead of \n%s\n"%(out[1],ans))
+            else:
+                p = Popen(os.path.join(args.problem_id, args.arg2) + (" %s/%s" % (args.problem_id, sample)), stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+                p.communicate(out[1].encode("utf-8"))
+                code = p.wait()
+                stdout, _ = p.communicate()
+                stdout = stdout.decode()
+                if code == 42:
+                    correct += 1
+                    print("Accepted")
+                elif code == 43:
+                    print(strip_whitespace(stdout))
+                    print("got:")
+                    print(out[1])
+                else:
+                    print("Unknown validator exit code %s with stdout:" % code)
+                    print(strip_whitespace(stdout))
+
+
         print("took %.3fs" % out[0])
         worst = max(worst, out[0])
     
