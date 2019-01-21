@@ -162,12 +162,16 @@ if args.mode == "run":
     print("took %.3fs" % out[0])
 
 if args.mode == "judge":
+    
+    files = os.listdir("%s" % args.problem_id)
 
     validator = False
     if args.arg2:
         validator = True
-    
-    files = os.listdir("%s" % args.problem_id)
+        if args.arg2 not in files:
+            print("The validator you specified could not be found in the %s folder." % args.problem_id)
+            exit(1)
+
     samples = []
     for file in files:
         if file.endswith(".in") and ("%s.ans" % file.split(".")[0] in files or validator):
