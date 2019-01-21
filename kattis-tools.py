@@ -90,10 +90,10 @@ def run_problem(sample, directStdio=False):
         p = Popen(parse_variables(config["languages"][language]["run_command"]), stdin=open("%s/%s" % (args.problem_id, sample)), stdout=sys.stdout, stderr=sys.stderr, shell=True)
     else:
         p = Popen(parse_variables(config["languages"][language]["run_command"]), stdin=open("%s/%s" % (args.problem_id, sample)), stdout=PIPE, stderr=PIPE, shell=True)
-    code = p.wait()
-    end = time.time()
-
     stdout, stderr = p.communicate()
+    end = time.time()
+    code = p.wait()
+
     if not directStdio:
         out = stdout.decode().replace("\r","") # get stdout
         out = strip_whitespace(out)
@@ -203,9 +203,8 @@ if args.mode == "judge":
                     print("got \n%s\ninstead of \n%s\n"%(out[1],ans))
             else:
                 p = Popen(os.path.join(args.problem_id, args.arg2) + (" %s/%s" % (args.problem_id, sample)), stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-                p.communicate(out[1].encode("utf-8"))
+                stdout, _ = p.communicate(out[1].encode("utf-8"))
                 code = p.wait()
-                stdout, _ = p.communicate()
                 stdout = stdout.decode()
                 if code == 42:
                     correct += 1
