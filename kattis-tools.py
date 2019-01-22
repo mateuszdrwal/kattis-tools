@@ -17,6 +17,11 @@ if sys.version_info[0] < 3:
 
 KATTIS_MODES = ["run", "judge", "submit", "start"]
 CONFIG_FOLDER = "config-kattis-tools"
+DEFAULT_PROBLEM_CONFIG = {
+    "subdomain": "open",
+    "validator_compile": "cd ${problemDir} && g++ -static validator.cpp -o validator.exe",
+    "validator_run": "${problemDir}/validator.exe",
+}
 
 def load_config():
     global config
@@ -40,6 +45,14 @@ def update_config():
     with open("%s/config.json" % CONFIG_FOLDER, "w") as f:
         json.dump({key:value for key, value in config.items() if key != "languages"}, f, indent=4, sort_keys=True)
 
+def load_problem_config(problem_id):
+    if not os.path.isfile("%s/problem.json" % problem_id):
+        print('This problem does not have a configuration file yet. Please run kattis-tools in start mode with the kattis URL of the problem first like so:\n"kattis-tools.py start <kattis problem URL>"')
+        exit(1)
+
+    with open("%s/problem.json" % problem_id) as f:
+        return json.load(f)
+
 def strip_whitespace(string):
     """strips all whitespace at beginning and end of string"""
     string = re.sub(r"^\s*", "", string)
@@ -48,8 +61,11 @@ def strip_whitespace(string):
 
 def find_problem_file():
     """finds the problem file in the problem directory"""
+    problem_config = load_problem_config(args.problem_id)
     files = os.listdir("%s" % args.problem_id)
     for file in files:
+        if file in problem_config.get("validator_compile", ""):
+            continue
         for extension in config["languages"][language]["extensions"]:
             if file.endswith(extension):
                 return file
@@ -81,7 +97,7 @@ def before_run_problem():
         code = p.wait()
         if code != 0:
             print("before_run exited with error code %s" % (int(code)))
-            exit()
+            exit(1)
 
 def run_problem(sample, directStdio=False):
     """runs the problem once and return time with stdout"""
@@ -117,7 +133,7 @@ parser.add_argument(
     metavar="arg2",
     type=str,
     nargs="?",
-    help='When using "kattis-tools run", this is the name of the input file to feed to stdin. It should be in the problem folder and have the extenstion ".in". When using "kattis-tools start" this is the url to the problem on the kattis website. When using "kattis-tools judge" this is the path of the optional (executeable) output validator relative to the problem directory.',
+    help='When using "kattis-tools run", this is the name of the input file to feed to stdin. It should be in the problem folder and have the extenstion ".in". When using "kattis-tools start" this is the url to the problem on the kattis website.',
 )
 parser.add_argument(
     "-l",
@@ -133,6 +149,12 @@ parser.add_argument(
     default=config["last_problem"],
     type=str,
     help="The id of the problem you want kattis-tools to manage. Can be found in the problem url or the folder name. If left out, the last used problem id is used.",
+)
+parser.add_argument(
+    "-v",
+    "--validator",
+    action="store_true",
+    help="If a validator should be used to check solutions instead of .ans files. Only applies in judge mode.",
 )
 
 args = parser.parse_args()
@@ -165,21 +187,24 @@ if args.mode == "judge":
     
     files = os.listdir("%s" % args.problem_id)
 
-    validator = False
-    if args.arg2:
-        validator = True
-        if args.arg2 not in files:
-            print("The validator you specified could not be found in the %s folder." % args.problem_id)
-            exit(1)
-
     samples = []
     for file in files:
-        if file.endswith(".in") and ("%s.ans" % file.split(".")[0] in files or validator):
+        if file.endswith(".in") and ("%s.ans" % file.split(".")[0] in files or args.validator):
             samples.append(file)
     
     if samples == []:
         print("No indata found with matching answers. make sure your indata has the extension .in and that its solution has the same name with extension .ans.")
         exit(1)
+
+    if args.validator:
+        problem_config = load_problem_config(args.problem_id)
+        if problem_config.get("validator_compile", "") != "":
+            print("Compiling validator...")
+            p = Popen(parse_variables(problem_config["validator_compile"]), shell=True)
+            code = p.wait()
+            if code != 0:
+                print("validator compilation exited with error code %s" % (int(code)))
+                exit(1)
     
     print("Found %s tests" % len(samples))
     before_run_problem()
@@ -196,7 +221,7 @@ if args.mode == "judge":
                 print(out[1])
                 print(out[3])
         else:
-            if not validator:
+            if not args.validator:
                 ans = open("%s/%s"%(args.problem_id, sample.replace(".in", ".ans"))).read()
                 ans = strip_whitespace(ans)
                 if out[1] == ans:
@@ -206,7 +231,10 @@ if args.mode == "judge":
                     print("Wrong Answer")
                     print("got \n%s\ninstead of \n%s\n"%(out[1],ans))
             else:
-                p = Popen(os.path.join(args.problem_id, args.arg2) + (" %s/%s" % (args.problem_id, sample)), stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+                p = Popen(
+                    parse_variables(problem_config.get("validator_run", DEFAULT_PROBLEM_CONFIG["validator_run"])) +
+                    (" %s" % sample)
+                    , stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
                 stdout, _ = p.communicate(out[1].encode("utf-8"))
                 code = p.wait()
                 stdout = stdout.decode()
@@ -218,8 +246,13 @@ if args.mode == "judge":
                     print("got:")
                     print(out[1])
                 else:
+                    if code == 1:
+                        print("Validators should only exit with codes 42 and 43. On windows, exit code 1 can mean that the executeable could not be found. Please make sure problem.json is correctly configured for your validator.")
+                    if code == 127:
+                        print("Validators should only exit with codes 42 and 43. On linux, exit code 127 can mean that the executeable could not be found. Please make sure problem.json is correctly configured for your validator.")
                     print("Unknown validator exit code %s with stdout:" % code)
                     print(strip_whitespace(stdout))
+                    exit(1)
 
 
         print("took %.3fs" % out[0])
@@ -247,13 +280,20 @@ if args.mode == "start":
     config["last_problem"] = problem_id
     update_config()
 
+    flag = False
     if problem_id in os.listdir("."):
         print("A problem enviroment for this problem already exists. The problem config has been updated.")
+        flag = True
     else:
         os.mkdir(problem_id)
+    
+    problem_config = DEFAULT_PROBLEM_CONFIG
+    problem_config["subdomain"] = subdomain
 
     with open("%s/problem.json" % problem_id, "w") as f:
-        f.write('{"subdomain": "%s"}' % subdomain)
+        json.dump(problem_config, f, indent=4, sort_keys=True)
+    
+    if flag: exit()
 
     r = requests.get("https://%s.kattis.com/problems/%s/file/statement/samples.zip" % (subdomain, problem_id))
 
@@ -268,12 +308,7 @@ if args.mode == "start":
     print("A problem enviroment for problem %s has been created." % problem_id)
 
 if args.mode == "submit":
-    if not os.path.isfile("%s/problem.json" % args.problem_id):
-        print('This problem does not have a configuration file yet. Before submitting, please run kattis-tools in start mode with the kattis URL of the problem first like so:\n"kattis-tools.py start <kattis problem URL>"')
-        exit(1)
-
-    with open("%s/problem.json" % args.problem_id) as f:
-        problem_config = json.load(f)
+    problem_config = load_problem_config(args.problem_id)
 
     try:
         with open("%s/credentials.json" % CONFIG_FOLDER) as f:
