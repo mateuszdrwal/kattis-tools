@@ -259,7 +259,6 @@ if args.mode == "start":
 
     if r.status_code != 200:
         print("Failed to download samples with status code %s." % r.status_code)
-        exit(1)
     else:
         file = io.BytesIO()
         file.write(r.content)
