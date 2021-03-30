@@ -189,7 +189,7 @@ if args.mode == "judge":
 
     samples = []
     for file in files:
-        if file.endswith(".in") and ("%s.ans" % file.split(".")[0] in files or args.validator):
+        if file.endswith(".in") and ("%s.ans" % file.split(".")[:-1] in files or args.validator):
             samples.append(file)
     
     if samples == []:
